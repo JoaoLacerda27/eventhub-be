@@ -2,8 +2,11 @@ package com.eventhub.api.controllers;
 
 import com.eventhub.api.domain.event.Event;
 import com.eventhub.api.domain.event.EventRequestDTO;
+import com.eventhub.api.domain.event.EventResponseDTO;
 import com.eventhub.api.services.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,5 +32,10 @@ public class EventController {
 
         Event newEvent = this.eventService.createEvent(eventRequestDTO);
         return ResponseEntity.ok(newEvent);
+    }
+
+    @GetMapping
+    public Page<EventResponseDTO> getAllUpcomingEvents(Pageable pageable) {
+        return this.eventService.getAllUpcomingEvent(pageable);
     }
 }

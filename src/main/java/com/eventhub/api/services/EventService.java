@@ -3,9 +3,12 @@ package com.eventhub.api.services;
 import com.eventhub.api.config.AWS.service.BucketService;
 import com.eventhub.api.domain.event.Event;
 import com.eventhub.api.domain.event.EventRequestDTO;
+import com.eventhub.api.domain.event.EventResponseDTO;
 import com.eventhub.api.repositories.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.Date;
 
@@ -37,6 +40,14 @@ public class EventService {
         repository.save(newEvent);
 
         return newEvent;
+    }
+
+    public Page<EventResponseDTO> getAllUpcomingEvent(Pageable pageable) {
+        Page<Event> eventsPage = this.repository.findUpcomingEvents(new Date(), pageable);
+
+        return eventsPage.map(event -> new EventResponseDTO(
+                event.getId(), event.getTitle(), event.getDescription(), event.getDate(), "", "", event.getRemote(), event.getEventUrl(), event.getImgUrl()
+        ));
     }
 
 }
