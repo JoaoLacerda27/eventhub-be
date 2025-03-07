@@ -1,4 +1,4 @@
-package com.eventhub.api.config;
+package com.eventhub.api.config.AWS.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
