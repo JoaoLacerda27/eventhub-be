@@ -7,9 +7,12 @@ import com.eventhub.api.services.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api/event")
@@ -36,6 +39,16 @@ public class EventController {
 
     @GetMapping
     public Page<EventResponseDTO> getAllUpcomingEvents(Pageable pageable) {
-        return this.eventService.getAllUpcomingEvent(pageable);
+        return this.eventService.getAllUpcomingEvents(pageable);
+    }
+
+    @GetMapping("/filter")
+    public Page<EventResponseDTO> filterEvents(@RequestParam(required = false) String title,
+                                               @RequestParam(required = false) String city,
+                                               @RequestParam(required = false) String uf,
+                                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
+                                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
+                                               Pageable pageable) {
+        return this.eventService.getFilteredEvents(title, city, uf, startDate, endDate, pageable);
     }
 }
