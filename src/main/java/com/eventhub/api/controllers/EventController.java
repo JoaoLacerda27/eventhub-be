@@ -1,6 +1,7 @@
 package com.eventhub.api.controllers;
 
 import com.eventhub.api.domain.event.Event;
+import com.eventhub.api.domain.event.EventDetailsDTO;
 import com.eventhub.api.domain.event.EventRequestDTO;
 import com.eventhub.api.domain.event.EventResponseDTO;
 import com.eventhub.api.services.EventService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/event")
@@ -50,5 +52,11 @@ public class EventController {
                                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
                                                Pageable pageable) {
         return this.eventService.getFilteredEvents(title, city, uf, startDate, endDate, pageable);
+    }
+
+    @GetMapping("/{eventId}")
+    public ResponseEntity<EventDetailsDTO> getEventDetails(@PathVariable UUID eventId) {
+        EventDetailsDTO eventDetails = eventService.getEventDetails(eventId);
+        return ResponseEntity.ok(eventDetails);
     }
 }

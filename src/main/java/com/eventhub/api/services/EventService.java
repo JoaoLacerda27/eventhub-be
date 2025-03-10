@@ -1,7 +1,10 @@
 package com.eventhub.api.services;
 
 import com.eventhub.api.config.AWS.service.BucketService;
+import com.eventhub.api.domain.address.Address;
+import com.eventhub.api.domain.coupon.Coupon;
 import com.eventhub.api.domain.event.Event;
+import com.eventhub.api.domain.event.EventDetailsDTO;
 import com.eventhub.api.domain.event.EventRequestDTO;
 import com.eventhub.api.domain.event.EventResponseDTO;
 import com.eventhub.api.repositories.EventRepository;
@@ -11,6 +14,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +32,11 @@ public class EventService {
     @Autowired
     private AddressService addressService;
 
+    @Autowired
+    private CouponService couponService;
+
     public Event createEvent(EventRequestDTO data) {
-        String imgUrl = null;
+        String imgUrl = "";
 
         if (data.image() != null) {
             imgUrl = bucketService.uploadImg(data.image());
@@ -85,6 +95,33 @@ public class EventService {
                 event.getEventUrl(),
                 event.getImgUrl()
         ));
+    }
+
+    public EventDetailsDTO getEventDetails(UUID eventId) {
+        Event event = repository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        Optional<Address> address = addressService.findByEventId(eventId);
+
+        List<Coupon> coupons = couponService.consultCoupons(eventId, new Date());
+
+        List<EventDetailsDTO.CouponDTO> couponDTOs = coupons.stream()
+                .map(coupon -> new EventDetailsDTO.CouponDTO(
+                        coupon.getCode(),
+                        coupon.getDiscount(),
+                        coupon.getValid()))
+                .collect(Collectors.toList());
+
+        return new EventDetailsDTO(
+                event.getId(),
+                event.getTitle(),
+                event.getDescription(),
+                event.getDate(),
+                address.isPresent() ? address.get().getCity() : "",
+                address.isPresent() ? address.get().getUf() : "",
+                event.getImgUrl(),
+                event.getEventUrl(),
+                couponDTOs);
     }
 
 }
